@@ -1,13 +1,13 @@
 package com.vitornp.choice.lunch.actor
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.vitornp.choice.lunch.model.{Lunch, Lunchs}
+import com.vitornp.choice.lunch.model.{Lunch, Lunches}
 
 object LunchActor {
 
   final case class ActionPerformed(description: String)
 
-  final case object GetLunchs
+  final case object GetLunches
 
   final case class CreateLunch(lunch: Lunch)
 
@@ -21,16 +21,16 @@ class LunchActor extends Actor with ActorLogging {
 
   import LunchActor._
 
-  var lunchs = Set.empty[Lunch]
+  var lunches = Set.empty[Lunch]
 
   override def receive: Receive = {
-    case GetLunchs =>
-      sender() ! Lunchs(lunchs.toSeq)
+    case GetLunches =>
+      sender() ! Lunches(lunches.toSeq)
     case CreateLunch(lunch) =>
-      lunchs += lunch
+      lunches += lunch
       sender() ! ActionPerformed(s"Lunch ${lunch.name} created.")
     case DeleteLunch(name) =>
-      lunchs.find(_.name == name) foreach { lunch => lunchs -= lunch }
+      lunches.find(_.name == name) foreach { lunch => lunches -= lunch }
       sender() ! ActionPerformed(s"Lunch $name deleted.")
   }
 
