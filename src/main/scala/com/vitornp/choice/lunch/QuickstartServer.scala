@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
 object QuickstartServer extends App with LunchRoute {
 
   // set up ActorSystem and other dependencies here
-  implicit val system: ActorSystem = ActorSystem("helloAkkaHttpServer")
+  implicit val system: ActorSystem = ActorSystem("choiceLunchBackend")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   // Needed for the Future and its methods flatMap/onComplete in the end
