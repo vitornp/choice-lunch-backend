@@ -2,14 +2,13 @@ package com.vitornp.choice.lunch
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
+import com.typesafe.config.ConfigFactory
 import com.vitornp.choice.lunch.actor.LunchActor
 import com.vitornp.choice.lunch.route.LunchRoute
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.io.StdIn
+import scala.concurrent.ExecutionContext
 
 object QuickstartServer extends App with LunchRoute {
 
@@ -24,17 +23,7 @@ object QuickstartServer extends App with LunchRoute {
 
   lazy val routes: Route = lunchRoutes
 
-  val serverBindingFuture: Future[ServerBinding] = Http().bindAndHandle(routes, "localhost", 8080)
+  val config = ConfigFactory.load()
 
-  println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
-
-  StdIn.readLine()
-
-  serverBindingFuture
-    .flatMap(_.unbind())
-    .onComplete { done =>
-      done.failed.map { ex => log.error(ex, "Failed unbinding") }
-      system.terminate()
-    }
-
+  Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
 }
