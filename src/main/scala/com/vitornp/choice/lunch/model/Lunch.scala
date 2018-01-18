@@ -22,4 +22,6 @@ final case class Lunch(
 
 }
 
-final case class Lunches(lunches: Seq[Lunch])
+final case class Lunches(lunches: Seq[Lunch]) {
+  def this() = this(Seq.empty)
+}

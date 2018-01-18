@@ -4,6 +4,7 @@ import java.util.UUID
 
 import akka.actor.{ActorLogging, Props}
 import akka.persistence.{PersistentActor, SnapshotOffer}
+import com.vitornp.choice.lunch.model.Weight.Weight
 import com.vitornp.choice.lunch.model.{Lunch, Lunches}
 
 object LunchActor {
@@ -14,6 +15,8 @@ object LunchActor {
   final case class GetById(id: UUID)
 
   final case object GetAll
+
+  final case class GetAllByTimeAndPrice(time: Weight, price: Weight)
 
   final case class Update(id: UUID, lunch: Lunch)
 
@@ -27,6 +30,11 @@ object LunchActor {
     def -(id: UUID): LunchState = LunchState(lunches.filterKeys(_ != id))
 
     def contains(id: UUID): Boolean = lunches.contains(id)
+
+    def filterByTimeAndPrice(time: Weight, price: Weight): Seq[Lunch] = lunches
+      .filter((t) => t._2.time == time && t._2.price == price)
+      .values
+      .toSeq
   }
 
   object LunchState {
@@ -47,12 +55,10 @@ class LunchActor extends PersistentActor with ActorLogging {
     case GetById(id) =>
       sender() ! state(id)
     case GetAll =>
-      val values = state.lunches.values
-      if (values.isEmpty) {
-        sender() ! None
-      } else {
-        sender() ! Some(Lunches(values.toSeq))
-      }
+      sendLunches(state.lunches.values)
+    case getAllByTimeAndPriceCmd: GetAllByTimeAndPrice =>
+      val lunches = state.filterByTimeAndPrice(getAllByTimeAndPriceCmd.time, getAllByTimeAndPriceCmd.price)
+      sendLunches(lunches)
     case createCmd: Create =>
       val lunch = createCmd.lunch
       if (state.contains(lunch.id)) {
@@ -81,6 +87,14 @@ class LunchActor extends PersistentActor with ActorLogging {
       } else {
         sender() ! None
       }
+  }
+
+  private def sendLunches(lunches: Iterable[Lunch]): Unit = {
+    if (lunches.isEmpty) {
+      sender() ! None
+    } else {
+      sender() ! Some(Lunches(lunches.toSeq))
+    }
   }
 
   private def saveState(id: UUID, lunch: Lunch): Unit = {
