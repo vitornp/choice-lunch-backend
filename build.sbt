@@ -9,14 +9,20 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 lazy val akkaVersion = "2.5.9"
 lazy val akkaHttpVersion = "10.0.11"
+lazy val akkaHttpJacksonVersion = "1.19.0"
+lazy val akkaPersistenceMongoVersion = "2.0.4"
+lazy val casbahVersion = "3.1.1"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,
 
+  "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
+  "com.github.scullxbones" %% "akka-persistence-mongo-casbah" % akkaPersistenceMongoVersion,
+  "org.mongodb" %% "casbah" % casbahVersion,
+
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-xml" % akkaHttpVersion,
+  "de.heikoseeberger" %% "akka-http-jackson" % akkaHttpJacksonVersion,
 
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
   "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
