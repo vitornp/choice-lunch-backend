@@ -19,17 +19,19 @@ object ChoiceRoute extends Directives with TimeoutSupport {
   def apply(system: ActorSystem, choiceActor: ActorRef): Route = {
     import de.heikoseeberger.akkahttpjackson.JacksonSupport._
 
-    pathPrefix("api" / "choices") {
-      pathEndOrSingleSlash {
-        get {
-          parameters('time.as[Weight.Weight], 'price.as[Weight.Weight]) { (time, price) =>
-            system.log.info("Choice lunch by time [{}] and price [{}]", time, price)
-            val lunch: Future[Option[Lunch]] = (choiceActor ? Choice(time, price)).mapTo[Option[Lunch]]
-            onSuccess(lunch) {
-              case Some(result) =>
-                complete((StatusCodes.OK, result))
-              case None =>
-                complete(StatusCodes.NotFound)
+    logRequestResult("api-choices") {
+      pathPrefix("api" / "choices") {
+        pathEndOrSingleSlash {
+          get {
+            parameters('time.as[Weight.Weight], 'price.as[Weight.Weight]) { (time, price) =>
+              system.log.info("Choice lunch by time [{}] and price [{}]", time, price)
+              val lunch: Future[Option[Lunch]] = (choiceActor ? Choice(time, price)).mapTo[Option[Lunch]]
+              onSuccess(lunch) {
+                case Some(result) =>
+                  complete((StatusCodes.OK, result))
+                case None =>
+                  complete(StatusCodes.NotFound)
+              }
             }
           }
         }
